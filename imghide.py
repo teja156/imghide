@@ -19,6 +19,7 @@ import sys
 
 DEBUG = False
 console = Console()
+headerText = "M6nMjy5THr2J"
 
 
 def encrypt(key, source, encode=True):
@@ -226,7 +227,8 @@ def main():
 		
 		print("[cyan]Message to be hidden: [/cyan]")
 		message = input(">>")
-		if(len(message)*3 > getPixelCount(img)):
+		message = headerText + message
+		if((len(message)+len(headerText))*3 > getPixelCount(img)):
 			raise Exception("Given message is too long to be encoded in the image.")
 
 
@@ -246,8 +248,11 @@ def main():
 		cipher=""
 		if password!="":
 			cipher = encrypt(key=password.encode(),source=message.encode())
+			# Add header to cipher
+			cipher = headerText + cipher
 		else:
 			cipher = message
+
 
 		if DEBUG:
 			print("[yellow]Encrypted : [/yellow]",cipher)
@@ -271,19 +276,42 @@ def main():
 		image = Image.open(img)
 
 		cipher = decodeImage(image)
-		# print(cipher)
+
+
+		header = cipher[:len(headerText)]
+
+		if header.strip()!=headerText:
+			print("[red]Invalid data![/red]")
+			sys.exit(0)
+
 
 		print()
 
 		if DEBUG:
-			print("[yellow]Cipher: %s[/yellow]"%cipher)
+			print("[yellow]Decoded text: %s[/yellow]"%cipher)
 
 		decrypted=""
 
 		if password!="":
-			decrypted = decrypt(key=password.encode(),source=cipher)
+			cipher = cipher[len(headerText):]
+			print("cipher : ",cipher)
+			try:
+				decrypted = decrypt(key=password.encode(),source=cipher)
+			except Exception as e:
+				print("[red]Wrong password![/red]")
+				sys.exit(0)
+
 		else:
 			decrypted=cipher
+
+
+		header = decrypted.decode()[:len(headerText)]
+
+		if header!=headerText:
+			print("[red]Wrong password![/red]")
+			sys.exit(0)
+
+		decrypted = decrypted[len(headerText):]
 
 
 
