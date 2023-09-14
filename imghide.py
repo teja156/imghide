@@ -50,6 +50,7 @@ def convertToRGB(img):
 		rgba_image.load()
 		background = Image.new("RGB", rgba_image.size, (255, 255, 255))
 		background.paste(rgba_image, mask = rgba_image.split()[3])
+		background.filename = img.filename
 		print("[yellow]Converted image to RGB [/yellow]")
 		return background
 	except Exception as e:
